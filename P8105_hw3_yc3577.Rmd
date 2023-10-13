@@ -20,6 +20,8 @@ instacart |>
   count(aisle) |>
   arrange(n, desc = FALSE)
 ```
+Next is a plot that shows the number of items ordered in each aisle.
+Here, aisles are ordered by ascending number of items.
 ```{r}
 instacart |> 
   count(aisle) |> 
@@ -30,6 +32,9 @@ instacart |>
   labs(title = "Number of items ordered in each aisle") +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
+Our next table shows the three most popular items in aisles
+`baking ingredients`, `dog food care`, and `packaged vegetables fruits`,
+and includes the number of times each item is ordered in your table.
 ```{r}
 instacart |> 
   filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) |>
@@ -41,6 +46,11 @@ instacart |>
   knitr::kable()
 ```
 
+Finally is a table showing the mean hour of the day at which Pink Lady
+Apples and Coffee Ice Cream are ordered on each day of the week. This
+table has been formatted in an untidy manner for human readers. Pink
+Lady Apples are generally purchased slightly earlier in the day than
+Coffee Ice Cream, with the exception of day 5.
 ```{r}
 instacart |>
   filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) |>
@@ -50,10 +60,14 @@ instacart |>
     names_from = order_dow, 
     values_from = mean_hour) |>
   knitr::kable(digits = 2)
+
+    ## `summarise()` has grouped output by 'product_name'. You can override using the
+    ## `.groups` argument.
 ```
 
 Problem 2
 
+First, we need to use `library` and `data` to get our `brfss_smart2010` data.
 ```{r}
 library(p8105.datasets)
 data("brfss_smart2010")
@@ -65,6 +79,7 @@ data("brfss_smart2010")
 3. include only responses from “Excellent” to “Poor”
 4. organize responses as a factor taking levels ordered from “Poor” to “Excellent”
 
+We build the tibble with `as_tibble()` first to format the data in the way we want, and then we need to use `janitor::clean_names()` to format the variable names. 
 ```{r}
 brfss = 
   brfss_smart2010 |>
