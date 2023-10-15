@@ -165,6 +165,7 @@ ggsave('brfss_spaghetti.pdf', height = 10, width = 12)
 Comments:
 From the graph, we can see that most of the states have mean data_value range from 16.5 to 27.5, and most of them have up and down values between 2002 to 2010. Some states like CA and CO had relatively high mean dv all the time around 28, and some states like WV have an extreme low mean dv at 2005 and 2007 (below 15). However, though with variation between the 8 years, the overall change of mean data_value is relatively small from 2002 to 2010.
 
+
 Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
 
 To make a two-panel plot among locations in NY state, we use `filter(state %in% 'NY')` to get NY rows selected, then we `filter()` for the years 2006 and 2010, we need to use `filter(year %in% c('2006','2010'))`. 
@@ -195,6 +196,8 @@ From the graph, we can see that in the two years 2006 and 2010, the response pat
 Problem 3
 
 Load, tidy, merge, and otherwise organize the data sets. Your final dataset should include all originally observed variables; exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes (i.e. not numeric, and using factors with the ordering of tables and plots in mind).
+
+First, we need to read and load the data by using `read_csv()` and we need to `skip = 4` to skip the first 4 rows, since these rows only contain sentences not data. Then we use `janitor::clean_names()` to clean the variable names. After that, we need to filter the rows to leave only `age>21` using `filter()`. Then we need to encode the data with reasonable variable class, we use `mutate()` to recode 1 to male and 2 to female. We need to do the same to education by recode 1 to `Less than high school`, 2 to `High school equivalent`, and 3 to `More than high school`. After recoding, we need to make them as factors by using `mutate( sex = as.factors(sex), education = as.factor(education))`. Finally, we omit the na data by using `drop_na()`.
 ```{r}
 nhanes_covar =
   read_csv('nhanes_covar.csv', skip = 4) |>
@@ -214,6 +217,8 @@ nhanes_covar =
 
 nhanes_covar
 ```
+
+First, we need to read and load the `nhanes_accel.csv` data by using `read_csv()`. Then we use `janitor::clean_names()` to clean the variable names. After that, we need to use `pivot_longer()` to make the data clean and tidy with variable `Number` contain the values of `MIMS` in a column, so that it can shrink the data into fewer columns. It looks more clean and tidy.(minized the min1, min2 to min1440 with `min1:min1440`, and use `values_to = 'MIMS`, Finally, we omit the na data by using `drop_na()`.
 ```{r}
 nhanes_accel = 
   read_csv('nhanes_accel.csv') |>
@@ -231,6 +236,8 @@ nhanes_accel
 
 
 Joined the two table together. 
+
+We joined the two table together using `left_join()` and the join key is `by = 'seqn'`.
 ```{r}
 nhanes_joint = 
   left_join(nhanes_covar, nhanes_accel, by = 'seqn')
@@ -240,6 +247,8 @@ nhanes_joint
 
 
 Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category. Comment on these items.
+
+In order to make a reader-friendly table, we use `group_by(sex, education)` to group the joined table in each category. Then, we are ready to make the plots. We use `ggplot(aes(x = age, y = education, fill = sex))` to load in the data in the plot. In this case, we need to do the comparison between different sex in different education level, so we are using `geom_boxplot()`, and we use `facet_grid()` to wrap the same sex into each three paralled boxes to make the graph to be compared. Finally, we use `labs()` to add title, and variable names.
 ```{r}
 nhanes_table =
   nhanes_joint |>
@@ -248,21 +257,29 @@ nhanes_table =
 
 age_plot = 
   nhanes_table |>
-  ggplot(aes(x = age, fill = sex)) +
-  geom_histogram(alpha = 0.5) +
-  facet_grid(.~education)
+  ggplot(aes(x = age, y = education, fill = sex)) +
+  geom_boxplot(alpha = 0.5) +
+  facet_grid(sex~.) +
+  labs(
+    title = 'Age Distribution on different Sex across Education Level',
+    x = 'Age',
+    y = 'Education'
+  )
 
 age_plot
 ```
+Comments: The overall pattern for borth male and female is that the education level lower, the mean age is higher for both sex. It makes sense, since people with older age when they are young back in the history, they are less likely to receive high education. While, younger people nowadays are in a modern society, so they are more likely to get higher education. This follows the trend of how society develops. On this boxplot, we can see both female and male groups have very similar distribution when the education level is less than high school. The female group age is slightly higher than the male group age. (mean around 61 in female and 60 in male) For the education level equivalent to high school, female group has mean age larger than the mean age of the male group age. The whole distribution is shifting to the higher age for female than male. (mean around 62 for female and around 54 for male) For the education level higher than high school, both female and male groups have similar age distribution, with female age mean lower than male mean age, and the male age has a wider distribution. (mean around 41 for female and around 45 for male) 
 
 
 Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate across minutes to create a total activity variable for each participant. Plot these total activities (y-axis) against age (x-axis); your plot should compare men to women and have separate panels for each education level. Include a trend line or a smooth to illustrate differences. Comment on your plot.
 
+In order to make the analysis, we need to make a clean table first by using `group_by()` to group the same sequence, education, sex, age together. Then we need to use the `summarise()` to get the sum of the same grouped sum of MIMS and make it into a new column of `total_activity`.
+Then we are ready to make the plot by using the `nhanes_clean` table with `ggplot(aes(x = age, y = total_activity, color = sex))` to load in the data to the plot, and use `geom_point()` to deal with the discrete data distribution, and then use the `geom_smooth()` to better see the trend with the smooth line added. Since this case, we need to compare the different sex total activity levels in each education group, we are wraping the education into each group with `facet_grid(.~education)`. Finally, we are adding the title and x,y labels with `labs(title = 'Total activities over Age',x = 'Age', y = 'Total Activities')`.
 ```{r}
 nhanes_clean =
   nhanes_table |>
-  group_by(seqn) |>
-  mutate(
+  group_by(seqn, education, sex, age) |>
+  summarise(
     total_activity = sum(MIMS)
   )
 
@@ -282,14 +299,17 @@ activity_plot =
 
 activity_plot
 ```
+Comments: The overall total activity pattern shows a downward correlation for both sex in each education levels. The decreasing trend is obvious that when age increased in both male and female groups, the total activities dropped. For the lower than high school education level, both male and female have a faster decreasing trend with male a little higher than female after age 40, and the total activity has a small peak around 60 for both sex. (Both dropped from 17500 to 8750) For the education level of high school, both male and female having a low point around 60 instead and male total activity level is almost always lower than female and stably decreasing from 15000 to 10000. While female total activities at first rise surprisingly to around 17500 and then drops sharply to 100000 and go to next small peak to 12500 and drops back to 100000. For the education level higher than high school, both female and male activities are much stable than the other groups and it drop from 13750 to around 100000, and male has a small peak around age 50 and female has a small peak later around 60. Overall, female has higher total activity than male. Overall, the education level may play a factor to slow down the total activity dropping rate. 
 
 
 Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences.
+
+Finally, we make the last plot using `nhanes_table`. We load data inside the plot with `ggplot(aes(x = Number, y = MIMS, group = seqn, color = sex))`. In this case, we are adding `seqn` as individual samples into the plot, so we need to have `group = seqn`, and then, we are adding points to the graph with `geom_point(alpha = 0.3)`. Then we need to see the trend more clearly by adding `geom_smooth(aes(group = sex), se = FALSE)`. Then we are grouping each education level together as the above plots with `facet_grid(.~education)`. Finally, we add the title and x,y labels with `labs()`.
 ```{r}
 threepanel_plot =
     nhanes_table |>
   ggplot(aes(x = Number, y = MIMS, group = seqn, color = sex)) +
-  geom_point(alpha = 0.5) +
+  geom_point(alpha = 0.3) +
   geom_smooth(aes(group = sex), se = FALSE) +
   facet_grid(.~education) +
   labs(
@@ -302,4 +322,4 @@ threepanel_plot
 
   
 ```
-
+Comments: Overall pattern shows that both female and male have similar pattern for the education level below high school, and they both have a total activities around 25 to 35, and they both get to a lower point around the 11am at the 24 hours. While the more than high school education group has a different pattern that male have a high variation before the small lower point around 8-9am and another high point after the down time around 2-3pm. The second peak also involve some female individuals. Moreover, the lower than and equivalent to high school education groups have male activities dominated while the female activities dominated for the education level higher than high school. Therefore, we may get a clue that higher education may play some role with increasing male total activity level. 
