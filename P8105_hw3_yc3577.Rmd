@@ -267,6 +267,8 @@ age_plot =
   )
 
 age_plot
+
+ggsave('age_plot.pdf', height = 10, width = 12)
 ```
 Comments: The overall pattern for borth male and female is that the education level lower, the mean age is higher for both sex. It makes sense, since people with older age when they are young back in the history, they are less likely to receive high education. While, younger people nowadays are in a modern society, so they are more likely to get higher education. This follows the trend of how society develops. On this boxplot, we can see both female and male groups have very similar distribution when the education level is less than high school. The female group age is slightly higher than the male group age. (mean around 61 in female and 60 in male) For the education level equivalent to high school, female group has mean age larger than the mean age of the male group age. The whole distribution is shifting to the higher age for female than male. (mean around 62 for female and around 54 for male) For the education level higher than high school, both female and male groups have similar age distribution, with female age mean lower than male mean age, and the male age has a wider distribution. (mean around 41 for female and around 45 for male) 
 
@@ -298,6 +300,8 @@ activity_plot =
   )
 
 activity_plot
+
+ggsave('activity_plot.pdf', height = 10, width = 12)
 ```
 Comments: The overall total activity pattern shows a downward correlation for both sex in each education levels. The decreasing trend is obvious that when age increased in both male and female groups, the total activities dropped. For the lower than high school education level, both male and female have a faster decreasing trend with male a little higher than female after age 40, and the total activity has a small peak around 60 for both sex. (Both dropped from 17500 to 8750) For the education level of high school, both male and female having a low point around 60 instead and male total activity level is almost always lower than female and stably decreasing from 15000 to 10000. While female total activities at first rise surprisingly to around 17500 and then drops sharply to 100000 and go to next small peak to 12500 and drops back to 100000. For the education level higher than high school, both female and male activities are much stable than the other groups and it drop from 13750 to around 100000, and male has a small peak around age 50 and female has a small peak later around 60. Overall, female has higher total activity than male. Overall, the education level may play a factor to slow down the total activity dropping rate. 
 
@@ -320,6 +324,6 @@ threepanel_plot =
 
 threepanel_plot
 
-  
+ggsave('threepanel_plot.pdf', height = 10, width = 12)
 ```
 Comments: Overall pattern shows that both female and male have similar pattern for the education level below high school, and they both have a total activities around 25 to 35, and they both get to a lower point around the 11am at the 24 hours. While the more than high school education group has a different pattern that male have a high variation before the small lower point around 8-9am and another high point after the down time around 2-3pm. The second peak also involve some female individuals. Moreover, the lower than and equivalent to high school education groups have male activities dominated while the female activities dominated for the education level higher than high school. Therefore, we may get a clue that higher education may play some role with increasing male total activity level. 
